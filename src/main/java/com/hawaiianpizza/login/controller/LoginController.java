@@ -102,6 +102,7 @@ public class LoginController {
     public ResponseEntity<?> localSignup(@RequestBody User user) {
         System.out.println("localSignup Controller");
         try {
+                System.out.println(user);
                 User ret = loginService.localSignUp(user);
                 return new ResponseEntity<>(ret, HttpStatus.OK);
             }
@@ -119,6 +120,37 @@ public class LoginController {
             }
             else{
                 return new ResponseEntity<>("login fail", HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(value = "/localReset")
+    public ResponseEntity<?> localReset(@RequestParam String id,@RequestParam String email) {
+        System.out.println("localReset Controller");
+        try {
+            if(loginService.localResetPwd(id,email)){
+
+                return new ResponseEntity<>("reset sucess", HttpStatus.OK);
+            }
+            else{
+                return new ResponseEntity<>("reset fail", HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(value = "/localCertify")
+    public ResponseEntity<?> localCertify(@RequestParam String id,@RequestParam String CertifyCode) {
+        System.out.println("localCertify Controller");
+        try {
+            if(loginService.localCertify(id,CertifyCode)){
+                return new ResponseEntity<>("localCertify sucess", HttpStatus.OK);
+            }
+            else{
+                return new ResponseEntity<>("localCertify fail", HttpStatus.OK);
             }
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
