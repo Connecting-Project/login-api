@@ -26,4 +26,7 @@ public class User {
     private String profileimage;
 
     private String pwd;
+
+    private String certified;
+    private String certifycode;
 }

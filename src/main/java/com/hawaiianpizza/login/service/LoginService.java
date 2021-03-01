@@ -7,10 +7,9 @@ import com.hawaiianpizza.login.dao.LoginDao;
 import com.hawaiianpizza.login.model.GoogleUser;
 import com.hawaiianpizza.login.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -27,6 +26,11 @@ import java.util.StringTokenizer;
 public class LoginService {
     @Autowired
     private LoginDao loginDao;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JavaMailSender mailSender;
+    private static final String FROM_ADDRESS = "ssafystudy@gmail.com";
 
 
     public String getToken(final String authorize_code) {
@@ -303,8 +307,18 @@ public class LoginService {
     public User localSignUp(User user){
 
         try{
+            String createCode = ramdom(10);
+            String encodePwd = passwordEncoder.encode(user.getPwd());
+
+            user.setPwd(encodePwd);
+            user.setCertified("false");
+            user.setCertifycode(createCode.toString());
+            System.out.println(user);
             User ret = loginDao.save(user);
             loginDao.save(user);
+            //인증 메일 전송
+            sendMail("하와이안피자 서비스 인증번호",user.getEmail(),createCode.toString());
+
             return ret;
         }
         catch(Exception exception) {
@@ -317,10 +331,39 @@ public class LoginService {
     public boolean localSignIn(String id,String pwd){
 
         try{
-            Optional<User> ret = loginDao.findByIdAndPwd(id,pwd);
+            Optional<User> ret = loginDao.findById(id);
             if(ret.isPresent()){
+                if(passwordEncoder.matches(pwd,ret.get().getPwd()))
+                    return true;
+                else
+                    System.out.println(pwd+": password fail");
+            }
+            else
+                System.out.println(id+": id fail");
+            return false;
+        }
+        catch(Exception exception) {
+            System.out.println(exception);
+        }
+        return false;
+    }
+    // 비밀번호 찾기
+    public boolean localResetPwd(String id,String email){
+
+        try{
+            Optional<User> ret = loginDao.findByIdAndEmail(id,email);
+            if(ret.isPresent()){
+                User user = ret.get();
+                String randomPwd = ramdom(8);
+                user.setPwd(passwordEncoder.encode(randomPwd));
+                loginDao.save(user);
+                //메일전송
+                sendMail("하와이안피자 서비스 비밀번호 초기화",user.getEmail(),"초기화된 비밀번호 : "+randomPwd);
+                System.out.println("reset sucess");
                 return true;
             }
+            else
+                System.out.println("reset fail");
             return false;
         }
         catch(Exception exception) {
@@ -329,4 +372,46 @@ public class LoginService {
         return false;
     }
 
+    // 인증 시도, 성공시 재로그인
+    public boolean localCertify(String id,String code){
+        Optional<User> ret = loginDao.findByIdAndCertifycode(id,code);
+        try{
+            if(ret.isPresent()){
+                User user = ret.get();
+                user.setCertified("true");
+                loginDao.save(user);
+                //메일전송
+                return true;
+            }
+        }
+        catch (Exception e){
+            System.out.println(e);
+            return false;
+        }
+        return false;
+    }
+
+
+    // 랜덤코드 및 패스워드 생성
+    public String ramdom(int num){
+        String codechar = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        StringBuilder createCode = new StringBuilder();
+        for(int i = 0;i<num;i++) {
+            createCode.append(codechar.charAt((int) (Math.random() * codechar.length())));
+        }
+        return createCode.toString();
+    }
+
+    // 이메일 전송
+    public void sendMail(String title, String toEmail, String text){
+        System.out.println("메일전송");
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setFrom(FROM_ADDRESS);
+        message.setSubject(title);
+        message.setText(text);
+
+        mailSender.send(message);
+        System.out.println(toEmail+"로 메일 전송 성공");
+    }
 }
