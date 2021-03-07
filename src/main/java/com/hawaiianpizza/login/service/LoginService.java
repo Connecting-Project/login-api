@@ -328,24 +328,24 @@ public class LoginService {
     }
 
 
-    public boolean localSignIn(String id,String pwd){
+    public User localSignIn(String id,String pwd){
 
         try{
             Optional<User> ret = loginDao.findById(id);
             if(ret.isPresent()){
                 if(passwordEncoder.matches(pwd,ret.get().getPwd()))
-                    return true;
+                    return ret.get();
                 else
                     System.out.println(pwd+": password fail");
             }
             else
                 System.out.println(id+": id fail");
-            return false;
+            return null;
         }
         catch(Exception exception) {
             System.out.println(exception);
         }
-        return false;
+        return null;
     }
     // 비밀번호 찾기
     public boolean localResetPwd(String id,String email){

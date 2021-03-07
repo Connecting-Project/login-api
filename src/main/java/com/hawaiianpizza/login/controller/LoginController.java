@@ -115,8 +115,9 @@ public class LoginController {
     public ResponseEntity<?> localSignin(@RequestParam String id,@RequestParam String password) {
         System.out.println("localSignin Controller");
         try {
-            if(loginService.localSignIn(id,password)){
-                return new ResponseEntity<>("login sucess", HttpStatus.OK);
+            User user = loginService.localSignIn(id,password);
+            if(user!=null){
+                return new ResponseEntity<>(user, HttpStatus.OK);
             }
             else{
                 return new ResponseEntity<>("login fail", HttpStatus.OK);
