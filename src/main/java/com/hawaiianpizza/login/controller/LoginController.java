@@ -32,25 +32,24 @@ public class LoginController {
             System.out.println("info");
             HashMap<String, Object> ret = loginService.getUserInfo(token);
             ret.put("token", token);
+            System.out.println(ret);
             return new ResponseEntity<>(ret, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-//    @PostMapping(value = "/kakao")
-//    public ResponseEntity<?> kakao(@RequestParam String code) {
-//        System.out.println("kakao Login Controller");
-//        try {
-//            System.out.println(code);
-//            String token = loginService.getToken(code);
-//            System.out.println("info");
-//            HashMap<String, Object> ret = loginService.getUserInfo(token);
-//            return new ResponseEntity<>(token, HttpStatus.OK);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//
-//    }
+    @PostMapping(value = "/kakaoLogout")
+    public ResponseEntity<?> kakaoLogout(@RequestParam String token) {
+        System.out.println("kakao Login Controller");
+        try {
+            System.out.println("kakaoLogout");
+
+            return new ResponseEntity<>(loginService.kakaoLogout(token), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 
     @PostMapping(value = "/google")
     public ResponseEntity<?> google(@RequestBody GoogleUser user) {
@@ -89,7 +88,7 @@ public class LoginController {
         System.out.println("overLapCheck Controller");
         try {
             if (loginService.overLapCheck(id)) {
-                return new ResponseEntity<>("sucess", HttpStatus.OK);
+                return new ResponseEntity<>("success", HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("fail", HttpStatus.OK);
             }
@@ -133,7 +132,7 @@ public class LoginController {
         try {
             if(loginService.localResetPwd(id,email)){
 
-                return new ResponseEntity<>("reset sucess", HttpStatus.OK);
+                return new ResponseEntity<>("reset success", HttpStatus.OK);
             }
             else{
                 return new ResponseEntity<>("reset fail", HttpStatus.OK);
@@ -148,7 +147,7 @@ public class LoginController {
         System.out.println("localCertify Controller");
         try {
             if(loginService.localCertify(id,CertifyCode)){
-                return new ResponseEntity<>("localCertify sucess", HttpStatus.OK);
+                return new ResponseEntity<>("localCertify success", HttpStatus.OK);
             }
             else{
                 return new ResponseEntity<>("localCertify fail", HttpStatus.OK);
