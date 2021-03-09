@@ -53,7 +53,7 @@ public class LoginService {
             StringBuilder sb = new StringBuilder();
             sb.append("grant_type=authorization_code");
             sb.append("&client_id=8d49647c4738cb1c7919b1734a1e2121");  //본인이 발급받은 key
-            sb.append("&redirect_uri=http://10.8.0.14:3000/kakao_login");     // 본인이 설정해 놓은 경로
+            sb.append("&redirect_uri=https://login.hawaiian-pizza.ml/kakao_login");     // 본인이 설정해 놓은 경로
             sb.append("&code=" + authorize_code);
             bw.write(sb.toString());
             bw.flush();
@@ -126,17 +126,56 @@ public class LoginService {
             String nickname = properties.getAsJsonObject().get("nickname").getAsString();
             String profile_image = properties.getAsJsonObject().get("profile_image").getAsString();
             String email = kakao_account.getAsJsonObject().get("email").getAsString();
-            String id = kakao_account.getAsJsonObject().get("id").getAsString();
+            String id = element.getAsJsonObject().get("id").getAsString();
             userInfo.put("nickname", nickname);
             userInfo.put("email", email);
             userInfo.put("profile_image", profile_image);
             userInfo.put("id",id);
-        } catch (IOException e) {
+            System.out.println(userInfo);
+        } catch (Exception e) {
             // TODO Auto-generated catch block
+            System.out.println("error");
             e.printStackTrace();
         }
 
         return userInfo;
+    }
+
+
+    public String kakaoLogout (final String access_Token) {
+
+        //    요청하는 클라이언트마다 가진 정보가 다를 수 있기에 HashMap타입으로 선언
+        HashMap<String, Object> userInfo = new HashMap<>();
+        String reqURL = "https://kapi.kakao.com/v1/user/logout";
+        try {
+            URL url = new URL(reqURL);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+
+            //    요청에 필요한 Header에 포함될 내용
+            conn.setRequestProperty("Authorization", "Bearer " + access_Token);
+
+            int responseCode = conn.getResponseCode();
+            System.out.println("responseCode : " + responseCode);
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String line = "";
+            String result = "";
+
+            while ((line = br.readLine()) != null) {
+                result += line;
+            }
+            System.out.println("response body : " + result);
+            return result;
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            System.out.println("error");
+            e.printStackTrace();
+        }
+
+        return "logout fail";
     }
 
     public String getGithubToken(final String authorize_code) {
