@@ -36,6 +36,7 @@ $ docker run -p 8080:8080 -d jusk2/hawaiian-login-api
 
 - Spring Boot
 - MariaDB
+  - 테스트 데이터베이스 정보가 포함되어 있습니다. 
 - Docker
 - Jenkins
 
