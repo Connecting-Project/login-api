@@ -1,6 +1,7 @@
 package com.hawaiianpizza.login.controller;
 
 import com.hawaiianpizza.login.model.GoogleUser;
+import com.hawaiianpizza.login.model.Login;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -111,10 +112,10 @@ public class LoginController {
     }
 
     @PostMapping(value = "/localSignin")
-    public ResponseEntity<?> localSignin(@RequestParam String id,@RequestParam String password) {
+    public ResponseEntity<?> localSignin(@RequestBody Login login) {
         System.out.println("localSignin Controller");
         try {
-            User user = loginService.localSignIn(id,password);
+            User user = loginService.localSignIn(login.getId(),login.getPassword());
             if(user!=null){
                 return new ResponseEntity<>(user, HttpStatus.OK);
             }
