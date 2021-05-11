@@ -53,7 +53,7 @@ public class LoginService {
             StringBuilder sb = new StringBuilder();
             sb.append("grant_type=authorization_code");
             sb.append("&client_id=8d49647c4738cb1c7919b1734a1e2121");  //본인이 발급받은 key
-            sb.append("&redirect_uri=https://login.hawaiian-pizza.ml/kakao_login");     // 본인이 설정해 놓은 경로
+            sb.append("&redirect_uri=https://login.hawaiian-pizza.space/kakao_login");     // 본인이 설정해 놓은 경로
             sb.append("&code=" + authorize_code);
             bw.write(sb.toString());
             bw.flush();
